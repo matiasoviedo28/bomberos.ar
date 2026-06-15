@@ -1,181 +1,251 @@
-# **bomberos.ar** ®
-[Página web](https://bvm.org.ar) orientada a la administración y centralización de datos para un cuartel de bomberos.
+<p align="center">
+  <img src="storage/LOGO.png" alt="BOMBEROS.AR" width="120">
+</p>
 
-## **Objetivo:**
-* Registrar los datos de los usuarios para su uso correcto a lo largo del tiempo, garantizando su almacenamiento y disponibilidad.
-* Centralizar las herramientas de los usuarios, desde formularios y capacitación hasta estadísticas, entre otros.
-* Modernizar a la institución, reemplazando el papel por una interfaz accesible desde cualquier lugar.
-* Brindar el servicio a toda institución que busque modernizarse.
+<h1 align="center">BOMBEROS.AR</h1>
 
-## **Funcionalidades:**
-- [Seguridad con usuario y contraseña](#Login)
-- [Perfil de usuario](#Perfil)
-- [Formularios](#Formularios)
-- [Herramientas](#Herramientas)
-- [Personal](#Personal)
-- [Aula Virtual](#Aula-Virtual)
-- [Organigrama](#Organigrama)
-- [Contactos de Emergencia](#Contactos-Emergencia)
-- [Otros](#Otros)
-- [Lector NFC](#Lector-NFC)
-- [Stack Tecnológico](#Stack-Tecnológico)
+<p align="center">
+  <em>Plataforma SaaS multi-tenant para la gestión de personal y operaciones de cuarteles de bomberos.</em>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
+  <img src="https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 16">
+  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white" alt="Docker">
+</p>
 
 ---
 
-## **Login**
-Cada persona cuenta con un nombre de usuario y contraseña, requisito indispensable para acceder al sitio.
-
-![imagen](images/web/login.png) 
-
-* Cuando se crea un perfil se habilita el acceso al login generando una contraseña genérica, que el usuario modifica al ingresar por primera vez.
-
----
-
-## **Perfil**
-
-Al iniciar sesión con sus credenciales, cada usuario accede a su perfil, donde encuentra lo siguiente:
-
-* Estadísticas de intervenciones
-    - Extraídas directamente de RUBA con actualización semanal
-* Estadísticas de presentismo
-    - Datos propios del lector NFC
-* Datos personales
-    - Información editable por el propio usuario o por el personal de Legajos
-* Certificados
-    - Cualquier certificado que el usuario suba al sistema
-* Botones habilitados
-    - Según los permisos, dispondrá de distintos accesos, como aulas para bomberos, cadetes o ingresantes
-
-#### Visualización de datos:
-Cada usuario puede consultar todos sus datos en esta sección. También pueden hacerlo los supervisores habilitados, como jefes, oficiales o encargados, según corresponda.
-
-![imagen](images/web/perfil.png)
-![imagen](images/web/certificados.png)
+> **Nota sobre este repositorio.** Es la cara pública del proyecto. Describe la
+> arquitectura y las decisiones técnicas a alto nivel, de forma deliberadamente
+> incompleta: no incluye configuración de producción, lógica de negocio sensible,
+> ni detalles de seguridad operativa. Es documentación, no una guía para
+> reconstruir el producto.
 
 ---
 
-## **Formularios:**
-![imagen](images/web/formularios_btn.png)
+## El problema
 
-Aquí se concentran todos los formularios disponibles en el sistema. Fueron desarrollados según las necesidades de la institución.
+Los cuarteles de bomberos voluntarios en Argentina gestionan su personal con
+herramientas dispersas: planillas de Excel, grupos de WhatsApp, cuadernos de
+guardia en papel y cargas manuales repetidas contra los sistemas oficiales de
+gestión de bomberos. Esto genera doble carga de datos, errores, falta de
+trazabilidad y horas administrativas que podrían dedicarse a la operación.
 
-Si la cantidad de formularios es elevada, pueden filtrarse mediante botones ubicados a la izquierda.
-
-#### Ejemplo:
-**Formulario de Licencias:** el usuario puede solicitar licencias o vacaciones. Al enviarlo, los jefes reciben una solicitud para su aprobación.
-
-![imagen](images/web/formularios.png)
-
----
-
-## **Herramientas:**
-![imagen](images/web/herramientas_btn.png)
-
-El sitio cuenta con diversas herramientas internas habilitadas según los permisos de cada usuario
-
-![imagen](images/web/herramientas.png)
-
-#### Ejemplo:
-**Panel de Ropería:** permite al jefe visualizar y gestionar las solicitudes. Todas quedan registradas y pueden filtrarse por **pendientes** (todas las gestiones comparten el mismo formato)
-
-![imagen](images/web/panel_roperia.png)
+**BOMBEROS.AR** centraliza esa gestión en una sola plataforma: cada cuartel
+(asociación) opera como un *tenant* aislado, con su propio personal, escalafón,
+control de presentismo, licencias, comunicaciones internas y reportería — y con
+sincronización automática hacia los sistemas oficiales para eliminar la doble
+carga.
 
 ---
 
-## **Personal:**
-![imagen](images/web/personal_btn.png)
+## Stack tecnológico
 
-Desde esta función, los supervisores pueden visualizar todos los perfiles, filtrando por tipo de usuario y su condición.
+| Capa | Tecnología |
+|------|-----------|
+| **Backend / API** | Python 3.12, [FastAPI](https://fastapi.tiangolo.com/), Uvicorn, Pydantic v2 |
+| **Base de datos** | PostgreSQL 16 (extensiones `uuid-ossp`, `citext`) |
+| **Acceso a datos** | SQLAlchemy Core (consultas SQL parametrizadas); esquema versionado con scripts de migración ordenados |
+| **Autenticación** | JWT (firma HS256), bcrypt para hashing de contraseñas, OTP/2FA con `pyotp` |
+| **Procesamiento de datos** | pandas, openpyxl (import/export de planillas) |
+| **Reportería** | Jinja2 (plantillas HTML), `pdf2image` |
+| **Integraciones externas** | Capa de sincronización propia con sistemas oficiales; email transaccional vía SMTP y API de terceros |
+| **Frontend** | HTML/CSS/JavaScript vanilla (sin framework), servido como sitio estático |
+| **Hardware** | Lectores basados para fichaje de presentismo |
+| **Infraestructura** | Docker Compose, Nginx como reverse proxy con terminación TLS |
 
-![imagen](images/web/menu_perfiles.png)
-
----
-
-## **Aula:**
-![imagen](images/web/aula_btn.png)
-
-El sistema cuenta con un aula virtual que separa el contenido según los distintos niveles, como Cadetes, Bomberos o Ingresantes.
-
-Se pueden subir PDF, videos y cualquier material útil para visualizar directamente desde la página web.
-
-![imagen](images/web/aula.png)
-
----
-
-## **Organigrama:**
-![imagen](images/web/organigrama_btn.png)
-
-En base a los datos registrados en el formulario "actualizar brigadas y departamentos" se genera un organigrama visual para observar la distribución interna de la institución, facilitando una fácil interpretación del personal.
-* Gráfico interactivo:
-![imagen](images/web/organigrama.png)
+> La elección de JS vanilla en el frontend es intencional: el cliente principal
+> es una UI de formularios y tablas con requisitos de carga bajos, y evitar un
+> framework reduce la superficie de mantenimiento y lleva el tiempo de build a cero.
 
 ---
 
-## **Contactos de emergencia:**
-![imagen](images/web/contactos_btn.png)
+## Arquitectura general
 
-Cada usuario actualiza sus contactos de emergencia para cualquier situación. Esta información puede ser consultada por cualquier usuario.
+```mermaid
+flowchart TD
+    subgraph cliente["Clientes"]
+        navegador["Navegador web (cliente estático)"]
+        nfc["Lector<br/>(fichaje de guardia)"]
+    end
 
-![imagen](images/web/contactos_emergencia.png)
+    subgraph edge["Edge"]
+        nginx["Nginx<br/>reverse proxy + TLS"]
+    end
 
----
+    subgraph app["Aplicación"]
+        api["API FastAPI<br/>(autenticación, dominio, integraciones)"]
+        scheduler["Worker programado<br/>(sincronización periódica)"]
+    end
 
-## **Otros:**
-Existen otras funciones para visualizar datos personales o redirigir a sitios de interés.
+    subgraph datos["Persistencia"]
+        db[("PostgreSQL<br/>multi-tenant")]
+        storage["Almacenamiento de archivos<br/>(fotos, certificados, logos)"]
+    end
 
-![imagen](images/web/otros_btn.png)
+    subgraph externo["Servicios externos"]
+        registro["Sistemas oficiales de bomberos"]
+        mail["Email transaccional"]
+    end
 
----
+    navegador --> nginx
+    nfc --> nginx
+    nginx --> api
+    nginx -. sirve estáticos .-> navegador
+    api --> db
+    api --> storage
+    api --> mail
+    api <--> registro
+    scheduler --> db
+    scheduler --> registro
+```
 
-## **Lector NFC:**
-
-Recientemente hemos reemplazado el libro de ingreso y salida del personal por un lector digital desarrollado específicamente para la página. Esto ha ahorrado aproximadamente 30 horas mensuales de carga manual en RUBA.
-
-Se instaló en el ingreso a la institución un lector donde se registra el ingreso y la salida.
-
-![imagen](images/web/lector_nfc.jpg)
-
-* Cada usuario dispone de una tarjeta, llavero o celular con NFC y registra su presencia rápidamente.
-* Los registros pueden ser auditados por quienes estén autorizados y posteriormente se cargan automáticamente a RUBA, ahorrando muchas horas de carga manual.
-* Visualización de la guardia en tiempo real con las siguientes ventajas:
-    * Visualización rápida de nombres con foto de perfil
-    * Contador de choferes tipo liviana y pesada
-    * Contador de las brigadas presentes.
-
-![imagen](images/web/guardia.png)
-
----
-
-## 📦 **Stack Tecnológico**
-
-![Ubuntu](https://img.shields.io/badge/Ubuntu-Server+-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)
-
-![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-
-![DNS](https://img.shields.io/badge/DNS-BIND9-5E81AC?style=for-the-badge&logo=gnu-bash&logoColor=white)
-
-![FastAPI](https://img.shields.io/badge/FastAPI-async-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-336791?style=for-the-badge&logo=postgresql&logoColor=white)
-
-![Docker](https://img.shields.io/badge/Docker-containers-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-
-![Arduino](https://img.shields.io/badge/Arduino-integration-00979D?style=for-the-badge&logo=arduino&logoColor=white)
-
-![HTML](https://img.shields.io/badge/HTML5-semantic-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-
-![CSS](https://img.shields.io/badge/CSS3-styling-1572B6?style=for-the-badge&logo=css3&logoColor=white)
-
-![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-
-![Servidor Dedicado](https://img.shields.io/badge/Servidor-Dedicado%20RAID-6C757D?style=for-the-badge&logo=serverfault&logoColor=white)
-
-## **Contacto:**
-### Consultá por una versión personalizada para tu institución
-![Gmail](https://img.shields.io/badge/-Gmail-D14836?style=flat\&logo=gmail\&logoColor=white): [matiasalbertooviedogonzalez@gmail.com](mailto:matiasalbertooviedogonzalez@gmail.com)
-
-![🇦🇷](https://img.shields.io/badge/-Ubicación-1E90FF?style=flat\&logo=google-maps\&logoColor=white): Merlo, San Luis, Argentina
+Cada componente corre como un contenedor independiente orquestado con Docker
+Compose. El worker de sincronización se separa de la API para que las cargas
+largas no afecten la latencia de las peticiones interactivas.
 
 ---
 
-**bvm.org.ar** es el dominio correspondiente a Bomberos Voluntarios Merlo, a quienes se les brinda este servicio de forma gratuita. El proyecto para otras instituciones se encuentra en [bomberos.ar](https://bomberos.ar)®.
+## Modelo de datos (conceptual)
+
+El núcleo del modelo gira alrededor del **aislamiento por tenant**: casi toda
+entidad pertenece a una **Asociación** (un cuartel), y las restricciones de
+unicidad están acotadas por asociación (por ejemplo, un documento de identidad es
+único *dentro* de un cuartel, no globalmente).
+
+```mermaid
+erDiagram
+    ASOCIACION ||--o{ BOMBERO : "agrupa"
+    ASOCIACION ||--o{ CARGO : "define"
+    ASOCIACION ||--o{ FORMULARIO : "publica"
+    BOMBERO }o--o{ CARGO : "ocupa"
+    BOMBERO ||--o| LEGAJO : "tiene"
+    BOMBERO ||--o{ FAMILIAR : "declara"
+    BOMBERO ||--o{ CREDENCIAL_NFC : "porta"
+    BOMBERO ||--o{ EVENTO_PRESENTISMO : "registra"
+    BOMBERO ||--o{ SOLICITUD_LICENCIA : "solicita"
+    FORMULARIO ||--o{ RESPUESTA : "recibe"
+    ASOCIACION ||--o{ NOVEDAD : "comunica"
+    ASOCIACION ||--o{ PAGO_SUSCRIPCION : "abona"
+```
+
+Entidades principales (a alto nivel):
+
+- **Asociación** — el tenant. Representa un cuartel con sus datos institucionales.
+- **Bombero (Usuario)** — la persona. Combina credenciales de acceso con un
+  perfil personal y un perfil operativo "bomberil" (jerarquía, habilitaciones,
+  destacamento, etc.).
+- **Legajo** — información de perfil extendida del bombero.
+- **Cargo** — catálogo de cargos/jerarquías por asociación; relación N:M con bomberos.
+- **Credencial NFC** — tarjeta física asociada a un bombero para el fichaje.
+- **Evento de presentismo** — registro de entrada/salida de guardia, con la
+  duración derivada y el origen del registro.
+- **Formulario / Respuesta** — formularios configurables por asociación. Los
+  formularios son **inmutables una vez creados** (ver decisiones técnicas).
+- **Solicitud de licencia** — flujo de pedido y aprobación de licencias.
+- **Novedad / Notificación** — comunicaciones internas del cuartel.
+- **Pago de suscripción** — estado comercial del tenant.
+
+> El esquema completo, con columnas, constraints y triggers, no se documenta acá
+> a propósito.
+
+---
+
+## Decisiones técnicas destacables
+
+### Multi-tenancy a nivel de base de datos (shared-schema)
+Todos los cuarteles comparten una misma base, y el aislamiento se garantiza por
+una clave de tenant presente en cada entidad, con restricciones de unicidad
+acotadas por tenant. Se eligió este enfoque sobre "una base por cliente" porque
+los cuarteles son entidades de tamaño acotado y similar: el modelo compartido
+simplifica drásticamente las migraciones, el backup y la operación, mientras que
+una base por tenant habría multiplicado el costo operativo sin un beneficio real
+de aislamiento para este caso de uso.
+
+### Esquema SQL versionado, SQLAlchemy Core en vez de ORM
+El esquema se administra con scripts de migración numerados y aplicados en orden,
+y el acceso a datos usa SQLAlchemy Core con SQL parametrizado en lugar de un ORM
+con modelos. Para un dominio donde las consultas analíticas (reportes,
+agregaciones de horas, auditorías) son de primera clase, escribir SQL explícito
+da control fino sobre el rendimiento y evita la opacidad del ORM, a costa de algo
+más de verbosidad.
+
+### Formularios inmutables
+Una vez creado, un formulario no puede modificarse: solo puede marcarse como
+vigente o no vigente. Esta invariante se protege en la propia base de datos.
+El motivo es de **trazabilidad**: las respuestas históricas deben seguir
+correspondiendo exactamente al formulario que el bombero vio y completó en su
+momento. Editar un formulario en lugar de versionarlo corrompería ese registro.
+
+### Sincronización con los sistemas oficiales
+La doble carga contra los sistemas oficiales era uno de los principales dolores
+del usuario. La plataforma modela esa integración como una capa de sincronización
+que traduce los datos internos al formato del sistema externo y los empuja de
+forma automática y programada, en vez de manual. Se ejecuta en un worker separado
+de la API para no impactar la experiencia interactiva. Los detalles del protocolo
+de integración no son públicos.
+
+### Presentismo por hardware NFC
+El fichaje de guardia se hace con lectores NFC dedicados: el bombero
+acerca su credencial y queda registrada la entrada/salida. El backend valida y
+deriva la duración de cada turno, descartando registros inconsistentes (turnos
+sin salida, duraciones imposibles, etc.). Esto reemplaza el cuaderno de guardia
+en papel y produce datos limpios para reportería y para la sincronización oficial.
+
+### Endurecimiento básico
+La documentación interactiva de la API (Swagger/OpenAPI) está deshabilitada fuera
+de entornos de desarrollo, los secretos se inyectan por variables de entorno
+(nunca versionados), y la autenticación soporta segundo factor (OTP).
+
+---
+
+## Funcionalidades principales
+
+Descritas por **capacidad**, no por implementación:
+
+- **Acceso y seguridad** — inicio de sesión con JWT, segundo factor opcional
+  (OTP), recuperación de contraseña por email y permisos derivados por rol.
+- **Gestión de personal** — alta y administración de bomberos, perfil personal y
+  operativo, legajo, familiares y foto.
+- **Escalafón y cargos** — catálogo de jerarquías por cuartel y asignación a cada
+  bombero.
+- **Presentismo y guardia** — fichaje por NFC, tablero de presentes en tiempo
+  real, cómputo de cumplimiento mensual de horas y auditoría.
+- **Licencias** — solicitud por parte del bombero y flujo de aprobación/rechazo.
+- **Sincronización oficial** — carga automática de datos y presentismo hacia los
+  sistemas oficiales, eliminando la doble carga.
+- **Comunicaciones** — novedades internas con comentarios y reacciones, más
+  notificaciones in-app y por email.
+- **Documentos** — carga y consulta de certificados de cursos y constancias.
+- **Reportería** — tableros de estadísticas y generación de informes
+  (mensuales/anuales) con filtros.
+- **Administración del cuartel** — gestión de usuarios, roles y configuración del
+  tenant.
+- **Gestión comercial** — seguimiento del estado de suscripción de cada cuartel.
+
+---
+
+## Estructura del repositorio (vista general)
+
+```
+backend/        API FastAPI (módulos por dominio) + capa de sincronización
+  app/          autenticación, usuarios, presentismo, licencias, reportes, ...
+db/init/        esquema versionado (scripts de migración ordenados)
+frontend/       cliente estático (HTML/CSS/JS)
+web/            configuración de Nginx (reverse proxy + TLS)
+storage/        archivos servidos (logos, fotos, certificados)
+docs/           documentación técnica interna
+docker-compose.yml   orquestación de servicios
+```
+
+---
+
+## Estado y contexto
+
+Proyecto en producción, dando servicio a cuarteles reales. Este README refleja el
+sistema a nivel arquitectónico; el código de detalle, la configuración de
+producción y la lógica de negocio sensible se mantienen fuera de la vista pública.
+
+<p align="center"><sub>BOMBEROS.AR — marca registrada. Todos los derechos reservados.</sub></p>
