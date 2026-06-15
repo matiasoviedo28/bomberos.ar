@@ -15,13 +15,7 @@
   <img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white" alt="Docker">
 </p>
 
----
 
-> **Nota sobre este repositorio.** Es la cara pública del proyecto. Describe la
-> arquitectura y las decisiones técnicas a alto nivel, de forma deliberadamente
-> incompleta: no incluye configuración de producción, lógica de negocio sensible,
-> ni detalles de seguridad operativa. Es documentación, no una guía para
-> reconstruir el producto.
 
 ---
 
